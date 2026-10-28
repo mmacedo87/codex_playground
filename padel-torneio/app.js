@@ -40,21 +40,24 @@
   }
 
   /* ---------- Slides ---------- */
+  function sideHTML(id, field, cls) {
+    return '<div class="side ' + cls + '">' + badge(id) +
+      '<span class="names" data-names="' + esc(id) + '"></span>' +
+      '<div class="stepper" data-prevent-swipe>' +
+        '<button type="button" class="step" data-step="-1" aria-label="Menos um jogo">−</button>' +
+        '<input type="number" inputmode="numeric" min="0" max="99" placeholder="–" data-f="' + field + '" aria-label="Jogos ganhos ' + esc(id) + '">' +
+        '<button type="button" class="step" data-step="1" aria-label="Mais um jogo">+</button>' +
+      '</div></div>';
+  }
+
   function matchHTML(x) {
     return '<div class="match" data-match="' + esc(x.id) + '" data-prevent-swipe>' +
       '<div class="court">🎾 ' + esc(x.court) + '</div>' +
-      '<div class="row">' +
-        '<div class="side home">' + badge(x.home) + '<span class="names" data-names="' + esc(x.home) + '"></span></div>' +
-        '<div class="score">' +
-          '<input type="number" inputmode="numeric" min="0" max="99" data-f="ga" aria-label="Jogos ganhos ' + esc(x.home) + '">' +
-          '<span class="dash">–</span>' +
-          '<input type="number" inputmode="numeric" min="0" max="99" data-f="gb" aria-label="Jogos ganhos ' + esc(x.away) + '">' +
-        '</div>' +
-        '<div class="side away">' + badge(x.away) + '<span class="names" data-names="' + esc(x.away) + '"></span></div>' +
-      '</div>' +
-      '<div class="tb" hidden>⚖️ Empate — ponto decisivo ganho por: ' +
-        '<button class="btn" data-tb="home">' + badge(x.home) + ' <span data-names="' + esc(x.home) + '"></span></button>' +
-        '<button class="btn" data-tb="away">' + badge(x.away) + ' <span data-names="' + esc(x.away) + '"></span></button>' +
+      sideHTML(x.home, 'ga', 'home') +
+      sideHTML(x.away, 'gb', 'away') +
+      '<div class="tb" hidden><span class="tb-label">⚖️ Empate — quem ganhou o ponto decisivo?</span>' +
+        '<button type="button" class="btn" data-tb="home">' + badge(x.home) + ' <span data-names="' + esc(x.home) + '"></span></button>' +
+        '<button type="button" class="btn" data-tb="away">' + badge(x.away) + ' <span data-names="' + esc(x.away) + '"></span></button>' +
       '</div>' +
       '<div class="status"></div>' +
     '</div>';
@@ -67,7 +70,8 @@
       '<div class="ball">🎾</div>' +
       '<h1>' + esc(m.title) + '</h1>' +
       '<div class="meta">' + esc(m.subtitle) + '<br><b>' + esc(m.date) + '</b> · ' + esc(m.time) + ' · 📍 ' + esc(m.place) + '</div>' +
-      '<div class="hint">Avança com as setas / desliza · os resultados ficam guardados neste dispositivo</div>' +
+      '<div class="actions" style="justify-content:center"><button type="button" class="btn primary" data-goto="2">Ver jogos →</button></div>' +
+      '<div class="hint">Desliza para o lado ou usa o menu em baixo · os resultados ficam guardados neste dispositivo</div>' +
     '</section>';
 
     html += '<section id="equipas"><h2>👥 Equipas</h2><div class="teams-grid">' +
@@ -100,7 +104,7 @@
       '<li>Vence quem tiver mais jogos ganhos no final do tempo; em caso de empate joga-se um <b>ponto decisivo</b>.</li>' +
       '<li>Desempate:<ol class="tie-list"><li>Maior número de vitórias</li><li>Confronto direto</li><li>Melhor diferença entre jogos ganhos e perdidos</li><li>Maior número de jogos ganhos</li></ol></li>' +
       '<li class="muted">Com 3 ou mais equipas empatadas, o confronto direto conta só os jogos entre elas.</li>' +
-    '</ul></section>';
+    '</ul><div class="actions"><button type="button" class="btn" data-goto="7">⚙️ Dados e backup</button></div></section>';
 
     html += '<section id="admin"><h2>⚙️ Dados</h2>' +
       '<p class="muted small">Tudo é guardado automaticamente neste dispositivo. Exporta para fazer backup ou passar os resultados para outro telemóvel.</p>' +
@@ -147,19 +151,19 @@
   function renderStandings() {
     var rows = L.standings(state), p = L.progress(state);
     $('#rank-progress').textContent = p.done + ' de ' + p.total + ' jogos concluídos';
-    var html = '<table class="rank"><thead><tr><th>#</th><th>Dupla</th><th>J</th><th>V</th><th>D</th><th>JG</th><th>JP</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
+    var html = '<table class="rank"><thead><tr><th>#</th><th>Dupla</th><th>J</th><th>V</th><th>D</th><th class="c-jg">JG</th><th class="c-jp">JP</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
     rows.forEach(function (r) {
       var why = !p.done ? '' : r.shared ? 'empate total' : (r.decidedBy ? 'à frente por ' + r.decidedBy : '');
       html += '<tr class="' + (r.rank === 1 && p.done > 0 ? 'first' : '') + '">' +
         '<td class="pos">' + (p.done ? medal(r.rank) : '–') + '</td>' +
         '<td class="team">' + badge(r.id) + '<span>' + esc(label(r.id)) + (why ? '<span class="why">' + esc(why) + '</span>' : '') + '</span></td>' +
         '<td>' + r.played + '</td><td>' + r.wins + '</td><td>' + r.losses + '</td>' +
-        '<td>' + r.gw + '</td><td>' + r.gl + '</td>' +
+        '<td class="c-jg">' + r.gw + '</td><td class="c-jp">' + r.gl + '</td>' +
         '<td>' + (r.diff > 0 ? '+' : '') + r.diff + '</td>' +
         '<td class="pts">' + r.points + '</td></tr>';
     });
     $('#rank-table').innerHTML = html + '</tbody></table>' +
-      '<div class="muted small" style="margin-top:6px">J jogos · V vitórias · D derrotas · JG jogos ganhos · JP jogos perdidos · Dif diferença</div>';
+      '<div class="muted small legend">J jogos · V vitórias · D derrotas · <span class="c-jg">JG jogos ganhos · JP jogos perdidos · </span>Dif diferença de jogos</div>';
 
     var champ = $('#champ');
     if (p.complete) {
@@ -185,16 +189,21 @@
     return isFinite(n) && n >= 0 ? Math.min(n, 99) : null;
   }
 
+  function go(n) { if (Reveal.isReady()) Reveal.slide(Number(n)); }
+
+  function setGames(x, f, v) {
+    x[f] = v;
+    if (x.ga !== x.gb) x.tb = null; // ponto decisivo só faz sentido num empate
+    save(); updateAll();
+  }
+
   function bindEvents() {
     var root = $('#slides');
 
     root.addEventListener('input', function (e) {
       var t = e.target;
       if (t.matches('input[data-f]')) {
-        var x = findMatch(t.closest('.match').getAttribute('data-match'));
-        x[t.getAttribute('data-f')] = parseGames(t.value);
-        if (x.ga !== x.gb) x.tb = null; // ponto decisivo só faz sentido num empate
-        save(); updateAll();
+        setGames(findMatch(t.closest('.match').getAttribute('data-match')), t.getAttribute('data-f'), parseGames(t.value));
       } else if (t.matches('input[data-team]')) {
         team(t.getAttribute('data-team')).players[Number(t.getAttribute('data-p'))] = t.value;
         save(); refreshNames(); renderStandings(); $$('.match').forEach(updateMatch);
@@ -202,6 +211,16 @@
     });
 
     root.addEventListener('click', function (e) {
+      var stp = e.target.closest('[data-step]');
+      if (stp) {
+        var f = $('input[data-f]', stp.parentNode).getAttribute('data-f');
+        var mx = findMatch(stp.closest('.match').getAttribute('data-match')), cur = mx[f], d = Number(stp.getAttribute('data-step'));
+        var nv = cur === null ? (d > 0 ? 1 : 0) : cur + d;
+        setGames(mx, f, nv < 0 ? null : Math.min(nv, 99));
+        return;
+      }
+      var g = e.target.closest('[data-goto]');
+      if (g) { go(g.getAttribute('data-goto')); return; }
       var b = e.target.closest('[data-tb]');
       if (b) {
         var x = findMatch(b.closest('.match').getAttribute('data-match')), v = b.getAttribute('data-tb');
@@ -275,18 +294,41 @@
   bindEvents();
   updateAll();
 
-  var narrow = window.matchMedia && window.matchMedia('(max-width: 800px)').matches;
-  Reveal.initialize({
-    hash: false,
-    view: narrow ? 'scroll' : 'default', // no telemóvel: scroll vertical em vez de slides escalados
-    scrollLayout: 'compact',
-    width: 1100,
-    height: 780,
-    margin: 0.04,
-    center: false,
-    controls: true,
-    progress: true,
-    slideNumber: 'c/t',
-    transition: 'slide'
+  var phone = window.matchMedia && window.matchMedia('(max-width: 800px)').matches;
+  var SLIDE_KEY = KEY + '-slide';
+  var TABS = [[1, 'Equipas'], [2, '1.ª'], [3, '2.ª'], [4, '3.ª'], [5, 'Tabela'], [6, 'Regras']];
+
+  if (phone) {
+    document.documentElement.classList.add('phone');
+    var nav = document.createElement('nav');
+    nav.className = 'tabbar'; nav.id = 'tabbar';
+    nav.innerHTML = TABS.map(function (t) {
+      return '<button type="button" data-goto="' + t[0] + '">' + t[1] + '</button>';
+    }).join('');
+    document.body.appendChild(nav);
+    nav.addEventListener('click', function (e) {
+      var g = e.target.closest('[data-goto]');
+      if (g) go(g.getAttribute('data-goto'));
+    });
+  }
+
+  function markTab() {
+    var h = Reveal.getIndices().h;
+    $$('#tabbar button').forEach(function (b) { b.classList.toggle('on', Number(b.getAttribute('data-goto')) === h); });
+    try { localStorage.setItem(SLIDE_KEY, String(h)); } catch (e) { /* ignora */ }
+  }
+  Reveal.on('ready', function () {
+    try { var h = parseInt(localStorage.getItem(SLIDE_KEY), 10); if (h > 0) Reveal.slide(h); } catch (e) { /* ignora */ }
+    markTab();
+  });
+  Reveal.on('slidechanged', markTab);
+
+  Reveal.initialize(phone ? {
+    // telemóvel: slides do tamanho do ecrã, layout responsivo (sem escala), scroll dentro de cada slide
+    hash: false, width: '100%', height: '100%', margin: 0, minScale: 1, maxScale: 1,
+    center: false, controls: true, progress: false, slideNumber: false, transition: 'slide', keyboard: false
+  } : {
+    hash: false, width: 1100, height: 780, margin: 0.04, center: false,
+    controls: true, progress: true, slideNumber: 'c/t', transition: 'slide'
   });
 })();
