@@ -256,8 +256,15 @@
     e.target.value = '';
   }
 
+  var resetArmed = null;
   function resetResults() {
-    if (!window.confirm('Apagar todos os resultados? (os nomes das equipas mantêm-se)')) return;
+    var btn = $('#btn-reset');
+    if (!resetArmed) { // 1.º toque arma, 2.º toque confirma (confirm() não funciona em todos os ambientes)
+      btn.textContent = '⚠️ Toca outra vez para apagar';
+      resetArmed = setTimeout(function () { resetArmed = null; btn.textContent = '🗑️ Limpar resultados'; }, 4000);
+      return;
+    }
+    clearTimeout(resetArmed); resetArmed = null; btn.textContent = '🗑️ Limpar resultados';
     L.allMatches(state).forEach(function (x) { x.ga = null; x.gb = null; x.tb = null; });
     save(); updateAll(); toast('Resultados limpos');
   }
@@ -270,7 +277,7 @@
 
   var narrow = window.matchMedia && window.matchMedia('(max-width: 800px)').matches;
   Reveal.initialize({
-    hash: true,
+    hash: false,
     view: narrow ? 'scroll' : 'default', // no telemóvel: scroll vertical em vez de slides escalados
     scrollLayout: 'compact',
     width: 1100,
