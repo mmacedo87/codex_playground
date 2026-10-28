@@ -14,19 +14,19 @@
 }
 
 html, body { background: var(--bg); }
-.reveal {
+.reveal, .app {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 26px;
   color: var(--text);
 }
 .reveal-viewport { background: radial-gradient(1200px 700px at 20% 0%, #1a2a4d 0%, var(--bg) 60%); }
-.reveal h1, .reveal h2, .reveal h3 {
+.reveal h1, .reveal h2, .reveal h3, .app h1, .app h2, .app h3 {
   font-family: inherit; color: var(--text); text-transform: none; letter-spacing: -0.01em; margin: 0 0 .5em; text-wrap: balance;
 }
 .reveal h1 { font-size: 2.1em; }
 .reveal h2 { font-size: 1.45em; }
-.reveal .slides section { text-align: left; }
-.reveal a { color: var(--accent); }
+.reveal .slides section, .app .slides section { text-align: left; }
+.reveal a, .app a { color: var(--accent); }
 .reveal .progress { color: var(--accent); }
 .reveal .controls { color: var(--accent); }
 .reveal .slide-number { color: var(--muted); background: transparent; font-size: 14px; }
@@ -140,18 +140,19 @@ table.rank .why { display: block; color: var(--muted); font-size: .78em; font-we
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ======================================================================
-   Telemóvel (classe .phone, definida em app.js): slides do tamanho do ecrã,
-   scroll vertical dentro de cada slide e barra de separadores em baixo.
+   Telemóvel (classe .phone, definida em app.js): sem reveal.js, página normal
+   com scroll, um painel de cada vez e barra de separadores fixa em baixo.
    ====================================================================== */
-html.phone, html.phone body { height: 100%; overflow: hidden; }
-.phone .reveal { font-size: 16px; }
-.phone .reveal .slides > section {
-  height: 100%; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
-  padding: 68px max(14px, env(safe-area-inset-left, 0px)) 84px max(14px, env(safe-area-inset-right, 0px));
+html.phone body { background: radial-gradient(900px 500px at 20% 0%, #1a2a4d 0%, var(--bg) 70%) fixed, var(--bg); min-height: 100%; }
+.phone .app { font-size: 16px; }
+.phone .app .slides > section { display: none; }
+.phone .app .slides > section.active { display: block; }
+.phone .app {
+  padding: 84px max(14px, env(safe-area-inset-left, 0px)) 96px max(14px, env(safe-area-inset-right, 0px));
 }
-.phone .reveal h1 { font-size: 1.8em; }
-.phone .reveal h2 { font-size: 1.35em; margin-bottom: .6em; }
-.phone .hero { padding-top: max(80px, 10vh) !important; }
+.phone .app h1 { font-size: 1.8em; }
+.phone .app h2 { font-size: 1.35em; margin-bottom: .6em; }
+.phone .hero { padding-top: 4vh; }
 .phone .hero .meta { font-size: 1em; }
 .phone .hint { font-size: .8em; }
 .phone .small { font-size: .82em; }
@@ -192,5 +193,3 @@ html.phone, html.phone body { height: 100%; overflow: hidden; }
 .tabbar button.on { color: var(--accent); border-top-color: var(--accent); }
 
 @media (max-width: 800px) { .teams-grid { grid-template-columns: 1fr; } }
-
-.phone .reveal .controls { display: none !important; }

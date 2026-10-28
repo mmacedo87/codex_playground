@@ -189,7 +189,8 @@
     return isFinite(n) && n >= 0 ? Math.min(n, 99) : null;
   }
 
-  function go(n) { if (Reveal.isReady()) Reveal.slide(Number(n)); }
+  var nav = { go: function () {}, index: function () { return 0; } };
+  function go(n) { nav.go(n); }
 
   function setGames(x, f, v) {
     x[f] = v;
@@ -298,37 +299,60 @@
   var SLIDE_KEY = KEY + '-slide';
   var TABS = [[1, 'Equipas'], [2, '1.ª'], [3, '2.ª'], [4, '3.ª'], [5, 'Tabela'], [6, 'Regras']];
 
-  if (phone) {
-    document.documentElement.classList.add('phone');
-    var nav = document.createElement('nav');
-    nav.className = 'tabbar'; nav.id = 'tabbar';
-    nav.innerHTML = TABS.map(function (t) {
-      return '<button type="button" data-goto="' + t[0] + '">' + t[1] + '</button>';
-    }).join('');
-    document.body.appendChild(nav);
-    nav.addEventListener('click', function (e) {
-      var g = e.target.closest('[data-goto]');
-      if (g) go(g.getAttribute('data-goto'));
-    });
-  }
-
   function markTab() {
-    var h = Reveal.getIndices().h;
+    var h = nav.index();
     $$('#tabbar button').forEach(function (b) { b.classList.toggle('on', Number(b.getAttribute('data-goto')) === h); });
     try { localStorage.setItem(SLIDE_KEY, String(h)); } catch (e) { /* ignora */ }
   }
-  Reveal.on('ready', function () {
-    try { var h = parseInt(localStorage.getItem(SLIDE_KEY), 10); if (h > 0) Reveal.slide(h); } catch (e) { /* ignora */ }
-    markTab();
-  });
-  Reveal.on('slidechanged', markTab);
+  function savedSlide() {
+    try { var h = parseInt(localStorage.getItem(SLIDE_KEY), 10); return h > 0 ? h : 0; } catch (e) { return 0; }
+  }
 
-  Reveal.initialize(phone ? {
-    // telemóvel: slides do tamanho do ecrã, layout responsivo (sem escala), scroll dentro de cada slide
-    hash: false, width: '100%', height: '100%', margin: 0, minScale: 1, maxScale: 1,
-    center: false, controls: true, progress: false, slideNumber: false, transition: 'slide', keyboard: false
-  } : {
-    hash: false, width: 1100, height: 780, margin: 0.04, center: false,
-    controls: true, progress: true, slideNumber: 'c/t', transition: 'slide'
-  });
+  if (phone) {
+    // Telemóvel: página normal (sem o motor de layout do reveal.js), um painel de cada vez.
+    document.documentElement.classList.add('phone');
+    $('.reveal').className = 'app';
+    var panes = $$('#slides > section'), cur = 0;
+    nav.index = function () { return cur; };
+    nav.go = function (n) {
+      cur = Math.max(0, Math.min(panes.length - 1, Number(n) || 0));
+      panes.forEach(function (p, i) { p.classList.toggle('active', i === cur); });
+      markTab();
+      window.scrollTo(0, 0);
+    };
+
+    var bar = document.createElement('nav');
+    bar.className = 'tabbar'; bar.id = 'tabbar';
+    bar.innerHTML = TABS.map(function (t) {
+      return '<button type="button" data-goto="' + t[0] + '">' + t[1] + '</button>';
+    }).join('');
+    document.body.appendChild(bar);
+    bar.addEventListener('click', function (e) {
+      var g = e.target.closest('[data-goto]');
+      if (g) nav.go(g.getAttribute('data-goto'));
+    });
+
+    // deslizar para o lado muda de painel (ignora toques em botões, campos e cartões)
+    var sx = 0, sy = 0, blocked = false;
+    document.addEventListener('touchstart', function (e) {
+      var t = e.touches[0]; sx = t.clientX; sy = t.clientY;
+      blocked = !!e.target.closest('[data-prevent-swipe], input, button, .tabbar');
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+      if (blocked) return;
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) > 70 && Math.abs(dy) < 60) nav.go(cur + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+
+    nav.go(savedSlide());
+  } else {
+    nav.index = function () { return Reveal.getIndices().h; };
+    nav.go = function (n) { if (Reveal.isReady()) Reveal.slide(Number(n)); };
+    Reveal.on('ready', function () { var h = savedSlide(); if (h) Reveal.slide(h); markTab(); });
+    Reveal.on('slidechanged', markTab);
+    Reveal.initialize({
+      hash: false, width: 1100, height: 780, margin: 0.04, center: false,
+      controls: true, progress: true, slideNumber: 'c/t', transition: 'slide'
+    });
+  }
 })();
