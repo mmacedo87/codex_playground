@@ -147,11 +147,11 @@ html.phone, html.phone body { height: 100%; overflow: hidden; }
 .phone .reveal { font-size: 16px; }
 .phone .reveal .slides > section {
   height: 100%; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
-  padding: 14px max(14px, env(safe-area-inset-left, 0px)) 84px max(14px, env(safe-area-inset-right, 0px));
+  padding: 68px max(14px, env(safe-area-inset-left, 0px)) 84px max(14px, env(safe-area-inset-right, 0px));
 }
 .phone .reveal h1 { font-size: 1.8em; }
 .phone .reveal h2 { font-size: 1.35em; margin-bottom: .6em; }
-.phone .hero { padding-top: 8vh !important; }
+.phone .hero { padding-top: max(80px, 10vh) !important; }
 .phone .hero .meta { font-size: 1em; }
 .phone .hint { font-size: .8em; }
 .phone .small { font-size: .82em; }
@@ -164,7 +164,8 @@ html.phone, html.phone body { height: 100%; overflow: hidden; }
 .phone .side .names { font-size: .95em; }
 .phone .step { width: 44px; height: 44px; font-size: 1.5em; }
 .phone .stepper { gap: 5px; }
-.phone .stepper input { width: 40px; height: 44px; font-size: 20px; padding: 0; }
+.phone .stepper input { width: 40px; height: 44px; font-size: 22px; padding: 0; background: transparent; border-color: transparent; }
+.stepper input::placeholder { color: var(--muted); opacity: .45; }
 .phone .tb { font-size: .88em; }
 .phone .tb .btn { flex: 1 1 100%; justify-content: flex-start; font-size: 1em; padding: .75em .9em; }
 .phone .status { font-size: .8em; }

@@ -45,7 +45,7 @@
       '<span class="names" data-names="' + esc(id) + '"></span>' +
       '<div class="stepper" data-prevent-swipe>' +
         '<button type="button" class="step" data-step="-1" aria-label="Menos um jogo">−</button>' +
-        '<input type="number" inputmode="numeric" min="0" max="99" placeholder="–" data-f="' + field + '" aria-label="Jogos ganhos ' + esc(id) + '">' +
+        '<input type="number" inputmode="numeric" min="0" max="99" placeholder="0" data-f="' + field + '" aria-label="Jogos ganhos ' + esc(id) + '">' +
         '<button type="button" class="step" data-step="1" aria-label="Mais um jogo">+</button>' +
       '</div></div>';
   }
